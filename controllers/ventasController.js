@@ -5,13 +5,15 @@ const getAll = async (req, res) => {
   try {
     const result = await db.query(`
       SELECT 
-        v.id,
-        
-        v.*,
-        ${sqlFormatDate('v.fecha_venta')} as fecha_formatted
-      FROM ventas v
-      
-      ORDER BY v.id DESC
+        id,
+        producto,
+        cantidad,
+        precio_unitario,
+        cliente_nombre,
+        cliente_direccion,
+        ${sqlFormatDate('fecha_venta')} as fecha_venta
+      FROM ventas
+      ORDER BY id DESC
     `);
 
     res.json({
@@ -30,12 +32,15 @@ const getById = async (req, res) => {
     const { id } = req.params;
     const result = await db.query(`
       SELECT 
-        v.id,
-        
-        v.*
-      FROM ventas v
-      
-      WHERE v.id = $1
+        id,
+        producto,
+        cantidad,
+        precio_unitario,
+        cliente_nombre,
+        cliente_direccion,
+        ${sqlFormatDate('fecha_venta')} as fecha_venta
+      FROM ventas
+      WHERE id = $1
     `, [id]);
 
     if (result.rows.length === 0) {

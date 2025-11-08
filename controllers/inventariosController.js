@@ -6,11 +6,15 @@ const getAll = async (req, res) => {
     const result = await db.query(`
       SELECT 
         i.id,
+        i.nombre_producto,
+        i.cantidad,
+        i.unidad,
+        i.precio_unitario,
+        i.categoria_id,
         c.categoria_nombre,
-        i.*,
-        ${sqlFormatDate('i.fecha_registro')} as fecha_formatted
+        ${sqlFormatDate('i.fecha_registro')} as fecha_registro
       FROM inventarios i
-      LEFT JOIN categorias_inventario c ON inv.categoria_id = c.id
+      LEFT JOIN categorias_inventario c ON i.categoria_id = c.id
       ORDER BY i.id DESC
     `);
 
@@ -31,10 +35,15 @@ const getById = async (req, res) => {
     const result = await db.query(`
       SELECT 
         i.id,
+        i.nombre_producto,
+        i.cantidad,
+        i.unidad,
+        i.precio_unitario,
+        i.categoria_id,
         c.categoria_nombre,
-        i.*
+        ${sqlFormatDate('i.fecha_registro')} as fecha_registro
       FROM inventarios i
-      LEFT JOIN categorias_inventario c ON inv.categoria_id = c.id
+      LEFT JOIN categorias_inventario c ON i.categoria_id = c.id
       WHERE i.id = $1
     `, [id]);
 

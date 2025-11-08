@@ -5,13 +5,16 @@ const getAll = async (req, res) => {
   try {
     const result = await db.query(`
       SELECT 
-        e.id,
-        
-        e.*,
-        ${sqlFormatDate('e.fecha_ingreso')} as fecha_formatted
-      FROM empleados e
-      
-      ORDER BY e.id DESC
+        id,
+        nombre_empleado,
+        puesto,
+        ${sqlFormatDate('fecha_ingreso')} as fecha_ingreso,
+        TO_CHAR(fecha_nacimiento, 'DD/MM/YYYY') as fecha_nacimiento,
+        telefono,
+        correo,
+        estado
+      FROM empleados
+      ORDER BY id DESC
     `);
 
     res.json({
@@ -30,12 +33,16 @@ const getById = async (req, res) => {
     const { id } = req.params;
     const result = await db.query(`
       SELECT 
-        e.id,
-        
-        e.*
-      FROM empleados e
-      
-      WHERE e.id = $1
+        id,
+        nombre_empleado,
+        puesto,
+        ${sqlFormatDate('fecha_ingreso')} as fecha_ingreso,
+        TO_CHAR(fecha_nacimiento, 'DD/MM/YYYY') as fecha_nacimiento,
+        telefono,
+        correo,
+        estado
+      FROM empleados
+      WHERE id = $1
     `, [id]);
 
     if (result.rows.length === 0) {
