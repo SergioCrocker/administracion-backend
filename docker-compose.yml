@@ -1,0 +1,64 @@
+services:
+  # Base de datos PostgreSQL 17
+  postgres:
+    image: postgres:17-alpine
+    container_name: administracion_ganadera_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: administracion_ganadera
+      PGDATA: /var/lib/postgresql/data/pgdata
+      TZ: America/Mexico_City
+      LANG: es_ES.UTF-8
+      LC_ALL: es_ES.UTF-8
+    ports:
+      - "5433:5432"  # Puerto externo 5433 para evitar conflicto con PostgreSQL local
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./base.sql:/docker-entrypoint-initdb.d/01-base.sql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/02-init-db.sql
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Aplicación Node.js
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: administracion_ganadera_backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: administracion_ganadera
+      TZ: America/Mexico_City
+      LOCALE: es_MX.UTF-8
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
+    command: npm start
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  app_network:
+    driver: bridge
